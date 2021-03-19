@@ -1,22 +1,20 @@
 import React, {useState} from "react";
-import {play, result as results} from "../rps/Play";
 
-export const RPSApp = () => {
+export const RPSApp = (props) => {
     const [p1Throw, setP1Throw] = useState('')
     const [p2Throw, setP2Throw] = useState('')
     const [result, setResult] = useState('')
+    const resultObserver = {
+        p1Wins: () => { setResult('Player 1 wins!') },
+        p2Wins: () => { setResult('Player 2 wins!') },
+        tie: () => { setResult('Tie!') },
+        invalid: () => { setResult('INVALID!') },
+    }
 
     const handlePlayFormSubmit = (event) => {
         event.preventDefault()
 
-        setResult(showResult(play(p1Throw, p2Throw)))
-    }
-
-    const showResult = (result) => {
-        if (result === results.p1Wins) return 'Player 1 wins!'
-        if (result === results.p2Wins) return 'Player 2 wins!'
-        if (result === results.tie) return 'Tie!'
-        else return 'INVALID!'
+        props.rps.play(p1Throw, p2Throw, resultObserver)
     }
 
     const handlePlayer1Input = (event) => {
