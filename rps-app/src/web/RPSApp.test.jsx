@@ -1,64 +1,114 @@
-import { render } from '@testing-library/react';
-import { RPSApp } from './RPSApp';
+import React from 'react';
+import {render} from '@testing-library/react';
+import {RPSApp} from './RPSApp';
 import userEvent from "@testing-library/user-event";
+import {any} from "expect";
 
 describe('RPS play form', () => {
-  it('invalid input', () => {
-    // arrange
-    const rpsApp = render(<RPSApp/>)
+    let rpsApp
 
-    // action
-    const p1Input = rpsApp.getByLabelText('Player 1:', {selector: 'input'})
-    userEvent.type(p1Input, 'flower')
-    const p2Input = rpsApp.getByLabelText('Player 2:', {selector: 'input'})
-    userEvent.type(p2Input, 'rock')
-    expect(rpsApp.queryByText('INVALID!')).not.toBeInTheDocument()
-    const button = rpsApp.getByText('PLAY')
-    userEvent.click(button)
+    describe('When the user input is invalid', () => {
+        beforeEach(() => {
+            const alwaysInvalid = {
+                play: (p1Throw, p2Throw, observer) => observer.invalid(),
+            }
 
-    // assertion
-    expect(rpsApp.queryByText('INVALID!')).toBeInTheDocument()
-  })
+            rpsApp = render(<RPSApp rps={alwaysInvalid}/>)
+        })
 
-  it('Player 1 wins!', () => {
-    const rpsApp = render(<RPSApp/>)
+        it('shows no result by default', () => {
+            expect(rpsApp.queryByText('INVALID!')).not.toBeInTheDocument()
+        })
 
-    const p1Input = rpsApp.getByLabelText('Player 1:', {selector: 'input'})
-    userEvent.type(p1Input, 'paper')
-    const p2Input = rpsApp.getByLabelText('Player 2:', {selector: 'input'})
-    userEvent.type(p2Input, 'rock')
-    expect(rpsApp.queryByText('Player 1 wins!')).not.toBeInTheDocument()
-    const button = rpsApp.getByText('PLAY')
-    userEvent.click(button)
+        it('shows that the input was invalid', () => {
+            submitForm();
 
-    expect(rpsApp.queryByText('Player 1 wins!')).toBeInTheDocument()
-  })
+            expect(rpsApp.queryByText('INVALID!')).toBeInTheDocument()
+        })
+    })
 
-  it('Player 2 wins!', () => {
-    const rpsApp = render(<RPSApp/>)
+    describe('When player one is the winner', () => {
+        beforeEach(() => {
+            const alwaysP1Wins = {
+                play: (p1Throw, p2Throw, observer) => observer.p1wins(),
+            }
 
-    const p1Input = rpsApp.getByLabelText('Player 1:', {selector: 'input'})
-    userEvent.type(p1Input, 'scissors')
-    const p2Input = rpsApp.getByLabelText('Player 2:', {selector: 'input'})
-    userEvent.type(p2Input, 'rock')
-    expect(rpsApp.queryByText('Player 2 wins!')).not.toBeInTheDocument()
-    const button = rpsApp.getByText('PLAY')
-    userEvent.click(button)
+            rpsApp = render(<RPSApp rps={alwaysP1Wins}/>)
+        })
 
-    expect(rpsApp.queryByText('Player 2 wins!')).toBeInTheDocument()
-  })
+        it('shows no result by default', () => {
+            expect(rpsApp.queryByText('Player 1 wins!')).not.toBeInTheDocument()
+        })
 
-  it('Tie!', () => {
-    const rpsApp = render(<RPSApp/>)
+        it('shows that player 1 is the winner', () => {
+            submitForm();
 
-    const p1Input = rpsApp.getByLabelText('Player 1:', {selector: 'input'})
-    userEvent.type(p1Input, 'paper')
-    const p2Input = rpsApp.getByLabelText('Player 2:', {selector: 'input'})
-    userEvent.type(p2Input, 'paper')
-    expect(rpsApp.queryByText('Tie!')).not.toBeInTheDocument()
-    const button = rpsApp.getByText('PLAY')
-    userEvent.click(button)
+            expect(rpsApp.queryByText('Player 1 wins!')).toBeInTheDocument()
+        })
+    })
 
-    expect(rpsApp.queryByText('Tie!')).toBeInTheDocument()
-  })
+    describe('When player two is the winner', () => {
+        beforeEach(() => {
+            const alwaysP2Wins = {
+                play: (p1Throw, p2Throw, observer) => observer.p2wins(),
+            }
+
+            rpsApp = render(<RPSApp rps={alwaysP2Wins}/>)
+        })
+
+        it('shows no result by default', () => {
+            expect(rpsApp.queryByText('Player 2 wins!')).not.toBeInTheDocument()
+        })
+
+        it('shows that player 2 is the winner', () => {
+            submitForm();
+
+            expect(rpsApp.queryByText('Player 2 wins!')).toBeInTheDocument()
+        })
+    })
+
+    describe('When the game is a tie', () => {
+        beforeEach(() => {
+            const alwaysTie = {
+                play: (p1Throw, p2Throw, observer) => observer.tie(),
+            }
+
+            rpsApp = render(<RPSApp rps={alwaysTie}/>)
+        })
+
+        it('shows no result by default', () => {
+            expect(rpsApp.queryByText('Tie!')).not.toBeInTheDocument()
+        })
+
+        it('shows that the game was a tie', () => {
+            submitForm();
+
+            expect(rpsApp.queryByText('Tie!')).toBeInTheDocument()
+        })
+    })
+
+    describe('When the game is submitted', () => {
+        it('sends the users inputs to the play request', () => {
+            const rpsSpy = {
+                play: jest.fn()
+            }
+            rpsApp = render(<RPSApp rps={rpsSpy}/>)
+
+            setInputValue('Player 1:', 'paper')
+            setInputValue('Player 2:', 'rock')
+            submitForm()
+
+            expect(rpsSpy.play).toBeCalledWith('paper', 'rock', any(Object))
+        })
+    })
+
+    function submitForm() {
+        const button = rpsApp.getByText('PLAY')
+        userEvent.click(button)
+    }
+
+    function setInputValue(labelText, input) {
+        const p1Input = rpsApp.getByLabelText(labelText, {selector: 'input'})
+        userEvent.type(p1Input, input)
+    }
 })
