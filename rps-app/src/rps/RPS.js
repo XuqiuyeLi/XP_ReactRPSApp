@@ -4,7 +4,19 @@ export const throws = {
     scissors: 'scissors'
 }
 
+export class Round {
+    constructor(p1, p2, result) {
+        this.p1 = p1
+        this.p2 = p2
+        this.result = result
+    }
+}
+
 export class RPS {
+    constructor(historyRepo) {
+        this.historyRepo = historyRepo
+    }
+
     play(p1Throw, p2Throw, observer) {
         if (!(p1Throw in throws && p2Throw in throws)) {
             observer.invalid();
@@ -16,6 +28,14 @@ export class RPS {
             observer.p2Wins();
         } else {
             observer.p1Wins();
+        }
+    }
+
+    loadHistory(observer) {
+        if (this.historyRepo.isEmpty()) {
+            observer.displayHistoryEmpty()
+        } else {
+            observer.displayHistory(this.historyRepo.getHistory())
         }
     }
 }

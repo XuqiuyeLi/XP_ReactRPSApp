@@ -1,110 +1,160 @@
-import {RPS, throws} from "./RPS";
+import {Round, RPS, throws} from "./RPS";
 
-describe('play', () => {
-    let rps = new RPS();
-    let spyObserver;
+describe('RPS', () => {
+    describe('play', () => {
+        let rps = new RPS();
+        let spyObserver;
 
-    describe('p1wins', () => {
-        beforeEach(() => {
-            spyObserver = {
-                p1Wins: jest.fn()
-            };
+        describe('p1wins', () => {
+            beforeEach(() => {
+                spyObserver = {
+                    p1Wins: jest.fn()
+                };
+            })
+
+            it('rock vs scissors', () => {
+                rps.play(throws.rock, throws.scissors, spyObserver)
+
+                expect(spyObserver.p1Wins).toBeCalledTimes(1)
+            })
+
+            it('scissors vs paper', () => {
+                rps.play(throws.scissors, throws.paper, spyObserver)
+
+                expect(spyObserver.p1Wins).toBeCalledTimes(1)
+            })
+
+            it('paper vs rock', () => {
+                rps.play(throws.paper, throws.rock, spyObserver)
+
+                expect(spyObserver.p1Wins).toBeCalledTimes(1)
+            })
         })
 
-        it('rock vs scissors', () => {
-            rps.play(throws.rock, throws.scissors, spyObserver)
+        describe('p2wins', () => {
+            beforeEach(() => {
+                spyObserver = {
+                    p2Wins: jest.fn()
+                };
 
-            expect(spyObserver.p1Wins).toBeCalledTimes(1)
+                rps = new RPS(spyObserver);
+            })
+
+            it('scissors vs rock', () => {
+                rps.play(throws.scissors, throws.rock, spyObserver)
+
+                expect(spyObserver.p2Wins).toBeCalledTimes(1)
+            })
+
+            it('paper vs scissors', () => {
+                rps.play(throws.paper, throws.scissors, spyObserver)
+
+                expect(spyObserver.p2Wins).toBeCalledTimes(1)
+            })
+
+            it('rock vs paper', () => {
+                rps.play(throws.rock, throws.paper, spyObserver)
+
+                expect(spyObserver.p2Wins).toBeCalledTimes(1)
+            })
         })
 
-        it('scissors vs paper', () => {
-            rps.play(throws.scissors, throws.paper, spyObserver)
+        describe('tie', () => {
+            beforeEach(() => {
+                spyObserver = {
+                    tie: jest.fn()
+                };
 
-            expect(spyObserver.p1Wins).toBeCalledTimes(1)
+                rps = new RPS(spyObserver);
+            })
+
+            it('paper vs paper', () => {
+                rps.play(throws.paper, throws.paper, spyObserver)
+
+                expect(spyObserver.tie).toBeCalledTimes(1)
+            })
+
+            it('rock vs rock', () => {
+                rps.play(throws.rock, throws.rock, spyObserver)
+
+                expect(spyObserver.tie).toBeCalledTimes(1)
+            })
+
+            it('scissors vs scissors', () => {
+                rps.play(throws.scissors, throws.scissors, spyObserver)
+
+                expect(spyObserver.tie).toBeCalledTimes(1)
+            })
         })
 
-        it('paper vs rock', () => {
-            rps.play(throws.paper, throws.rock, spyObserver)
+        describe('invalid', () => {
+            beforeEach(() => {
+                spyObserver = {
+                    invalid: jest.fn()
+                };
 
-            expect(spyObserver.p1Wins).toBeCalledTimes(1)
+                rps = new RPS(spyObserver);
+            })
+
+            it('rock vs invalid', () => {
+                rps.play(throws.rock, Math.random(), spyObserver)
+
+                expect(spyObserver.invalid).toBeCalledTimes(1)
+            })
+
+            it('invalid vs paper', () => {
+                rps.play(Math.random(), throws.rock, spyObserver)
+
+                expect(spyObserver.invalid).toBeCalledTimes(1)
+            })
+
+            it('invalid vs invalid', () => {
+                rps.play(Math.random(), Math.random(), spyObserver)
+
+                expect(spyObserver.invalid).toBeCalledTimes(1)
+            })
         })
     })
 
-    describe('p2wins', () => {
-        beforeEach(() => {
-            spyObserver = {
-                p2Wins: jest.fn()
+    describe('loadHistory', () => {
+        it('if no one has played', () => {
+            const emptyStubHistoryRepo = {
+                isEmpty: jest.fn(_ => true)
+            }
+            const rps = new RPS(emptyStubHistoryRepo)
+            const spyObserver = {
+                displayHistoryEmpty: jest.fn(),
+                displayHistory: jest.fn()
             };
+
+
+            rps.loadHistory(spyObserver, emptyStubHistoryRepo)
+
+            expect(emptyStubHistoryRepo.isEmpty).toBeCalledTimes(1)
+            expect(spyObserver.displayHistoryEmpty).toBeCalledTimes(1)
+            expect(spyObserver.displayHistory).toBeCalledTimes(0)
         })
 
-        it('scissors vs rock', () => {
-            rps.play(throws.scissors, throws.rock, spyObserver)
-
-            expect(spyObserver.p2Wins).toBeCalledTimes(1)
-        })
-
-        it('paper vs scissors', () => {
-            rps.play(throws.paper, throws.scissors, spyObserver)
-
-            expect(spyObserver.p2Wins).toBeCalledTimes(1)
-        })
-
-        it('rock vs paper', () => {
-            rps.play(throws.rock, throws.paper, spyObserver)
-
-            expect(spyObserver.p2Wins).toBeCalledTimes(1)
-        })
-    })
-
-    describe('tie', () => {
-        beforeEach(() => {
-            spyObserver = {
-                tie: jest.fn()
+        it('if games have been played', () => {
+            const stubHistoryRepo = {
+                isEmpty: jest.fn(_ => false),
+                getHistory: jest.fn(_ => [
+                    new Round('rock','scissors','player 1 wins'),
+                    new Round('rock','rock','tie')
+                ])
+            }
+            const rps = new RPS(stubHistoryRepo)
+            const spyObserver = {
+                displayHistoryEmpty: jest.fn(),
+                displayHistory: jest.fn()
             };
-        })
 
-        it('paper vs paper', () => {
-            rps.play(throws.paper, throws.paper, spyObserver)
 
-            expect(spyObserver.tie).toBeCalledTimes(1)
-        })
+            rps.loadHistory(spyObserver, stubHistoryRepo)
 
-        it('rock vs rock', () => {
-            rps.play(throws.rock, throws.rock, spyObserver)
 
-            expect(spyObserver.tie).toBeCalledTimes(1)
-        })
-
-        it('scissors vs scissors', () => {
-            rps.play(throws.scissors, throws.scissors, spyObserver)
-
-            expect(spyObserver.tie).toBeCalledTimes(1)
-        })
-    })
-
-    describe('invalid', () => {
-        beforeEach(() => {
-            spyObserver = {
-                invalid: jest.fn()
-            };
-        })
-
-        it('rock vs invalid', () => {
-            rps.play(throws.rock, Math.random(), spyObserver)
-
-            expect(spyObserver.invalid).toBeCalledTimes(1)
-        })
-
-        it('invalid vs paper', () => {
-            rps.play(Math.random(), throws.rock, spyObserver)
-
-            expect(spyObserver.invalid).toBeCalledTimes(1)
-        })
-
-        it('invalid vs invalid', () => {
-            rps.play(Math.random(), Math.random(), spyObserver)
-
-            expect(spyObserver.invalid).toBeCalledTimes(1)
+            expect(spyObserver.displayHistoryEmpty).toBeCalledTimes(0)
+            expect(spyObserver.displayHistory).toBeCalledTimes(1)
         })
     })
 })

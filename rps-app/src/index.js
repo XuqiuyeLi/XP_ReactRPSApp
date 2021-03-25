@@ -6,7 +6,7 @@ import {RPS} from "./rps/RPS";
 
 ReactDOM.render(
   <React.StrictMode>
-    <RPSApp rps={new RPS()}/>
+    <RPSApp rps={new RPS(new LocalHistoryRepo())}/>
   </React.StrictMode>,
   document.getElementById('root')
 );
