@@ -35,8 +35,6 @@ describe('play', () => {
             spyObserver = {
                 p2Wins: jest.fn()
             };
-
-            rps = new RPS(spyObserver);
         })
 
         it('scissors vs rock', () => {
@@ -63,8 +61,6 @@ describe('play', () => {
             spyObserver = {
                 tie: jest.fn()
             };
-
-            rps = new RPS(spyObserver);
         })
 
         it('paper vs paper', () => {
@@ -91,8 +87,6 @@ describe('play', () => {
             spyObserver = {
                 invalid: jest.fn()
             };
-
-            rps = new RPS(spyObserver);
         })
 
         it('rock vs invalid', () => {
