@@ -4,7 +4,7 @@ export const throws = {
     scissors: 'scissors'
 }
 
-export class RPS {
+class RPS {
     play(p1Throw, p2Throw, observer) {
         if (!(p1Throw in throws && p2Throw in throws)) {
             observer.invalid();
@@ -19,3 +19,5 @@ export class RPS {
         }
     }
 }
+
+export default RPS

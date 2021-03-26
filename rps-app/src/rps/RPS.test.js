@@ -1,4 +1,4 @@
-import {RPS, throws} from "./RPS";
+import RPS, { throws} from "./RPS";
 
 describe('play', () => {
     let rps = new RPS();
