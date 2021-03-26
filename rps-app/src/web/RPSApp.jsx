@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {play, result as results} from "../rps/Play";
 
-export const RPSApp = () => {
+const RPSApp = () => {
     const [p1Throw, setP1Throw] = useState('')
     const [p2Throw, setP2Throw] = useState('')
     const [result, setResult] = useState('')
@@ -44,3 +44,5 @@ export const RPSApp = () => {
         </div>
     );
 }
+
+export default RPSApp
