@@ -1,8 +1,15 @@
-import {RPS, throws} from "./RPS";
+import {Round, RPS, throws} from "./RPS";
 
 describe('play', () => {
-    let rps = new RPS();
-    let spyObserver;
+    let rps;
+    let spyObserver, spyRepo;
+
+    beforeEach(() => {
+        spyRepo = {
+            save: jest.fn()
+        }
+        rps = new RPS(spyRepo)
+    })
 
     describe('p1wins', () => {
         beforeEach(() => {
@@ -28,6 +35,13 @@ describe('play', () => {
 
             expect(spyObserver.p1Wins).toBeCalledTimes(1)
         })
+
+        it('saves to repo', () => {
+            rps.play(throws.paper, throws.rock, spyObserver)
+
+            expect(spyRepo.save).toBeCalledTimes(1)
+            expect(spyRepo.save).toBeCalledWith(new Round(throws.paper, throws.rock, 'p1 wins'))
+        });
     })
 
     describe('p2wins', () => {
@@ -54,6 +68,13 @@ describe('play', () => {
 
             expect(spyObserver.p2Wins).toBeCalledTimes(1)
         })
+
+        it('saves to repo', () => {
+            rps.play(throws.rock, throws.paper, spyObserver)
+
+            expect(spyRepo.save).toBeCalledTimes(1)
+            expect(spyRepo.save).toBeCalledWith(new Round(throws.rock, throws.paper, 'p2 wins'))
+        });
     })
 
     describe('tie', () => {
@@ -80,6 +101,13 @@ describe('play', () => {
 
             expect(spyObserver.tie).toBeCalledTimes(1)
         })
+
+        it('saves to repo', () => {
+            rps.play(throws.paper, throws.paper, spyObserver)
+
+            expect(spyRepo.save).toBeCalledTimes(1)
+            expect(spyRepo.save).toBeCalledWith(new Round(throws.paper, throws.paper, 'tie'))
+        });
     })
 
     describe('invalid', () => {
@@ -106,10 +134,17 @@ describe('play', () => {
 
             expect(spyObserver.invalid).toBeCalledTimes(1)
         })
+
+        it('saves to repo', () => {
+            rps.play('sailboat', throws.rock, spyObserver)
+
+            expect(spyRepo.save).toBeCalledTimes(1)
+            expect(spyRepo.save).toBeCalledWith(new Round('sailboat', throws.rock, 'invalid'))
+        });
     })
 })
 
-describe('history', () => {
+describe('getHistory', () => {
     let rps = new RPS();
 
     describe('when no rounds have been played', () => {
@@ -118,9 +153,41 @@ describe('history', () => {
                 noHistory: jest.fn()
             };
 
+            const repoStub = {
+                isEmpty: () => {
+                    return true
+                }
+            }
+
+            const rps = new RPS(repoStub)
+
             rps.getHistory(spyObserver)
 
             expect(spyObserver.noHistory).toBeCalledTimes(1)
         })
     })
+
+    describe('when rounds have been played', () => {
+        it('tells the UI the played rounds', () => {
+            const spyObserver = {
+                rounds: jest.fn()
+            }
+
+            const repoStub = {
+                isEmpty: () => {
+                    return false
+                },
+                getAllRounds: () => {
+                    return [new Round(throws.scissors, throws.paper, 'p1 wins')]
+                }
+            }
+
+            const rps = new RPS(repoStub)
+
+            rps.getHistory(spyObserver)
+
+            expect(spyObserver.rounds).toBeCalledTimes(1)
+            expect(spyObserver.rounds).toBeCalledWith([new Round(throws.scissors, throws.paper, 'p1 wins')])
+        });
+    });
 })
