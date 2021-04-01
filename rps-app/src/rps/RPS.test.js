@@ -108,3 +108,19 @@ describe('play', () => {
         })
     })
 })
+
+describe('history', () => {
+    let rps = new RPS();
+
+    describe('when no rounds have been played', () => {
+        it('tells the UI no history', () => {
+            const spyObserver = {
+                noHistory: jest.fn()
+            };
+
+            rps.getHistory(spyObserver)
+
+            expect(spyObserver.noHistory).toBeCalledTimes(1)
+        })
+    })
+})
