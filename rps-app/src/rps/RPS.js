@@ -5,6 +5,10 @@ export const throws = {
 }
 
 export class RPS {
+    constructor(repository) {
+        this.repo = repository
+    }
+
     play(p1Throw, p2Throw, observer) {
         if (!(p1Throw in throws && p2Throw in throws)) {
             observer.invalid();

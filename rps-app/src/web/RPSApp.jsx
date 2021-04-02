@@ -1,5 +1,13 @@
 import React, {useState} from "react";
 
+export class Round {
+    constructor(p1Throw, p2Throw, result) {
+        this.p1Throw = p1Throw
+        this.p2Throw = p2Throw
+        this.result = result
+    }
+}
+
 export const RPSApp = (props) => {
     const [p1Throw, setP1Throw] = useState('')
     const [p2Throw, setP2Throw] = useState('')
@@ -9,6 +17,8 @@ export const RPSApp = (props) => {
         p2Wins: () => { setResult('Player 2 wins!') },
         tie: () => { setResult('Tie!') },
         invalid: () => { setResult('INVALID!') },
+        noHistory: () => {},
+        showHistory: (rounds) => {}
     }
 
     const handlePlayFormSubmit = (event) => {

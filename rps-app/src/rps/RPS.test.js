@@ -110,13 +110,17 @@ describe('play', () => {
 })
 
 describe('getHistory', () => {
-    describe('when played zero times', () => {
+    describe('when played no rounds', () => {
         it('tells the UI no history', () => {
             const spyObserver = {
                 noHistory: jest.fn()
             };
 
-            new RPS().getHistory(spyObserver)
+            const emptyRepo = {
+                isEmpty: () => { return true }
+            }
+
+            new RPS(emptyRepo).getHistory(spyObserver)
 
             expect(spyObserver.noHistory).toBeCalledTimes(1)
         });
