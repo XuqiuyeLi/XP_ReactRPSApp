@@ -18,4 +18,8 @@ export class RPS {
             observer.p1Wins();
         }
     }
+
+    getHistory(observer) {
+        observer.noHistory()
+    }
 }

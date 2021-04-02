@@ -108,3 +108,17 @@ describe('play', () => {
         })
     })
 })
+
+describe('getHistory', () => {
+    describe('when played zero times', () => {
+        it('tells the UI no history', () => {
+            const spyObserver = {
+                noHistory: jest.fn()
+            };
+
+            new RPS().getHistory(spyObserver)
+
+            expect(spyObserver.noHistory).toBeCalledTimes(1)
+        });
+    });
+});
